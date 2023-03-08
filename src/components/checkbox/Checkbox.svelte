@@ -1,20 +1,30 @@
 <script lang="ts">
     import classNames from "classnames";
-    import { HTMLInputAttributes, ChangeEventHandler } from "svelte/elements";
+    import type { ChangeEventHandler, HTMLAttributes } from "svelte/elements";
     import { createEventDispatcher } from "svelte";
 
     interface CheckboxChangeEvent {
-        target: HTMLInputElement;
+        target: CheckboxChangeEventTarget;
         stopPropagation: () => void;
         preventDefault: () => void;
     }
+    interface CheckboxChangeEventTarget extends CheckboxProps {
+        checked: boolean;
+    }
 
-    interface CheckboxProps extends Omit<HTMLInputAttributes, "on:change"> {
+    interface CheckboxProps extends HTMLAttributes<HTMLInputElement> {
         prefixCls?: string;
+        defaultChecked?: boolean;
+    }
+
+    interface $$Events {
+        change: CheckboxChangeEvent;
     }
 
     type $$Props = CheckboxProps;
 
+    let className: string;
+    export { className as class };
     export let prefixCls = "sc-checkbox";
     export let disabled: boolean;
     export let checked: boolean;
@@ -22,13 +32,27 @@
     export let style: string;
 
     let rawValue = defaultChecked || checked;
-    let inputRef: HTMLInputElement;
 
-    const dispatch = createEventDispatcher<{ change: CheckboxChangeEvent }>();
+    const dispatch = createEventDispatcher<{
+        change: CheckboxChangeEvent;
+        blur: any;
+        focus: any;
+    }>();
 
     const handleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+        if (disabled) {
+            return;
+        }
+
+        if (!("checked" in $$props)) {
+            rawValue = e.currentTarget.checked;
+        }
+
         dispatch("change", {
-            target: inputRef,
+            target: {
+                ...$$props,
+                checked: e.currentTarget.checked,
+            },
             stopPropagation() {
                 e.stopPropagation();
             },
@@ -38,7 +62,7 @@
         });
     };
 
-    const classString = classNames(prefixCls, $$props.class, {
+    const classString = classNames(prefixCls, className, {
         [`${prefixCls}-checked`]: rawValue,
         [`${prefixCls}-disabled`]: disabled,
     });
@@ -48,8 +72,13 @@
     <input
         {...$$restProps}
         class={`${prefixCls}-inner`}
-        bind:this={inputRef}
         on:change={handleChange}
+        on:focus={(e) => {
+            dispatch("blur", e);
+        }}
+        on:blur={(e) => {
+            dispatch("focus", e);
+        }}
         {disabled}
         type="checkbox"
     />
