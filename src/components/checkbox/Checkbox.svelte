@@ -10,7 +10,6 @@
     }
 
     interface CheckboxProps extends Omit<HTMLInputAttributes, "on:change"> {
-        externalCls?: string;
         prefixCls?: string;
     }
 
