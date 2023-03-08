@@ -10,6 +10,7 @@
   "author": "Boiao Ch<doubiliao@gmail.com>",
   "license": "MIT",
   "devDependencies": {
+    "@tsconfig/svelte": "^3.0.0",
     "classnames": "^2.3.2",
     "less": "^4.1.3",
     "svelte": "^3.55.1",
