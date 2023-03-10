@@ -62,7 +62,7 @@
         });
     };
 
-    const classString = classNames(prefixCls, className, {
+    $: classString = classNames(prefixCls, className, {
         [`${prefixCls}-checked`]: rawValue,
         [`${prefixCls}-disabled`]: disabled,
     });
@@ -71,7 +71,7 @@
 <span class={classString} {style}>
     <input
         {...$$restProps}
-        class={`${prefixCls}-inner`}
+        class={`${prefixCls}-input`}
         on:change={handleChange}
         on:focus={(e) => {
             dispatch("blur", e);
@@ -79,7 +79,9 @@
         on:blur={(e) => {
             dispatch("focus", e);
         }}
+        checked={!!rawValue}
         {disabled}
         type="checkbox"
     />
+    <span class={`${prefixCls}-inner`} />
 </span>
