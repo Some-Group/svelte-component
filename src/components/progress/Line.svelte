@@ -1,7 +1,8 @@
 <script lang="ts">
     import classNames from "classnames";
     import type { ProgressProps } from "./interface";
-    import { defaultProps } from "./common";
+    import { defaultProps, VIEW_BOX_SIZE } from "./common";
+    import { toArray } from "./utils";
     import LinePath from "./LinePath.svelte";
 
     type $$Props = ProgressProps;
@@ -21,7 +22,7 @@
         defaultProps.strokeColor;
     export let transition: ProgressProps["transition"];
 
-    const percentList = Array.isArray(percent) ? percent : [percent];
+    $: percentList = toArray(percent);
     // NOTE why using the ! for strokeWidth
     // because setting up a default value for strokeWidth
     // that value will be not undefined
@@ -30,7 +31,7 @@
     const pathString = `M ${strokeLinecap === "round" ? center : 0},${center}
          L ${strokeLinecap === "round" ? right : 100},${center}`;
 
-    const viewBoxString = `0 0 100 ${strokeWidth}`;
+    const viewBoxString = `0 0 ${VIEW_BOX_SIZE} ${strokeWidth}`;
 </script>
 
 <svg

@@ -1,6 +1,8 @@
 <script lang="ts">
     import type { ProgressProps } from "./interface";
     import { defaultProps } from "./common";
+    import { onMount } from "svelte";
+    import { toArray } from "./utils";
 
     export let prefixCls: ProgressProps["prefixCls"] = defaultProps.prefixCls;
     export let pathString: string;
@@ -14,9 +16,7 @@
     export let percent: number;
     export let transition: ProgressProps["transition"];
 
-    const strokeColorList = Array.isArray(strokeColor)
-        ? strokeColor
-        : [strokeColor];
+    const strokeColorList = toArray(strokeColor);
 
     let stackPtg = 0;
 
@@ -33,7 +33,7 @@
             break;
     }
 
-    const pathStyle = {
+    $: pathStyle = {
         strokeDasharray: `${percent * dashPercent}px, 100px`,
         strokeDashoffset: `-${stackPtg}px`,
         transition:
@@ -41,11 +41,51 @@
             "stroke-dashoffset 0.3s ease 0s, stroke-dasharray .3s ease 0s, stroke 0.3s linear",
     };
 
-    const color =
-        strokeColorList[index] || strokeColorList[strokeColorList.length - 1];
+    const color = (strokeColorList[index] ||
+        strokeColorList[strokeColorList.length - 1]) as string;
+
+    let pathRef: SVGPathElement;
+
+    onMount(() => {
+        let prevTimeStamp = Date.now();
+        let updated = false;
+
+        if (!pathRef) {
+            return;
+        }
+        updated = true;
+        const pathStyle = pathRef.style;
+        pathStyle.transitionDuration = ".3s, .3s, .3s, .06s";
+
+        if (prevTimeStamp && now - prevTimeStamp < 100) {
+            pathStyle.transitionDuration = "0s, 0s";
+        }
+        console.log(pathRef.style);
+
+        // let updated = false;
+
+        // pathsRef.current.forEach((path) => {
+        //     if (!path) {
+        //         return;
+        //     }
+
+        //     updated = true;
+        //     const pathStyle = path.style;
+        //     pathStyle.transitionDuration = ".3s, .3s, .3s, .06s";
+
+        //     if (prevTimeStamp.current && now - prevTimeStamp.current < 100) {
+        //         pathStyle.transitionDuration = "0s, 0s";
+        //     }
+        // });
+
+        // if (updated) {
+        //     prevTimeStamp.current = Date.now();
+        // }
+    });
 </script>
 
 <path
+    bind:this={pathRef}
     class={`${prefixCls}-line-path`}
     d={pathString}
     stroke={color}
