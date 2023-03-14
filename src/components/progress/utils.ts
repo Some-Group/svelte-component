@@ -50,9 +50,8 @@ export const getCircleStyle = (
     style += `stroke: ${strokeColor};`;
   }
   style += `stroke-dasharray: ${perimeterWithoutGap}px ${perimeter};`;
-  style += `stroke-dashoffset: rotate(${
-    rotateDeg + offsetDeg + positionDeg
-  }deg);`;
+  style += `stroke-dashoffset: ${strokeDashoffset + stepSpace};`;
+  style += `transform: rotate(${rotateDeg + offsetDeg + positionDeg}deg);`;
   style += `transform-origin: 0 0;`;
   style += `transition: stroke-dashoffset .3s ease 0s, stroke-dasharray .3s ease 0s, stroke .3s, stroke-width .06s ease .3s, opacity .3s ease 0s;`;
   style += `fill-opacity: 0;`;

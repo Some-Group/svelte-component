@@ -31,7 +31,7 @@
     export let defaultChecked = false;
     export let style: string;
 
-    let rawValue = defaultChecked || checked;
+    let inputRef;
 
     const dispatch = createEventDispatcher<{
         change: CheckboxChangeEvent;
@@ -62,6 +62,8 @@
         });
     };
 
+    $: rawValue = checked === undefined ? defaultChecked : checked;
+
     $: classString = classNames(prefixCls, className, {
         [`${prefixCls}-checked`]: rawValue,
         [`${prefixCls}-disabled`]: disabled,
@@ -70,6 +72,7 @@
 
 <span class={classString} {style}>
     <input
+        bind:this={inputRef}
         {...$$restProps}
         class={`${prefixCls}-input`}
         on:change={handleChange}
