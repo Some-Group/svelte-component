@@ -3,7 +3,7 @@
   import type { ProgressProps, StrokeColorType } from "./interface";
   import { toArray, stripPercentToNumber, getCircleStyle } from "./utils";
   import { VIEW_BOX_SIZE, useId, defaultProps } from "./common";
-  import CirclePath from "./CirclePath.svelte";
+  import { formatStyle } from "../../utils";
 
   type $$Props = ProgressProps;
 
@@ -20,7 +20,6 @@
   export let trailWidth: ProgressProps["trailWidth"] = defaultProps.trailWidth;
   export let strokeColor: ProgressProps["strokeColor"] =
     defaultProps.strokeColor;
-  export let transition: ProgressProps["transition"];
   export let gapDegree: ProgressProps["gapDegree"] = 0;
   export let steps: ProgressProps["steps"];
   export let trailColor: ProgressProps["trailColor"] = defaultProps.trailColor;
@@ -38,11 +37,27 @@
   const { count: stepCount, space: stepSpace } =
     typeof steps === "object" ? steps : { count: steps, space: 2 };
 
-  $: percentList = toArray(percent);
+  $: circleStyle = formatStyle(
+    getCircleStyle(
+      perimeter,
+      perimeterWithoutGap,
+      0,
+      100,
+      rotateDeg,
+      gapDegree,
+      gapPosition,
+      trailColor,
+      strokeLinecap,
+      strokeWidth
+    )
+  );
+
+  $: percentList = stepCount
+    ? getStepStokeList(toArray(percent))
+    : getStrokeList(toArray(percent));
 
   const strokeColorList = toArray<StrokeColorType>(strokeColor!);
 
-  // TODO: fix ts type
   const gradient = strokeColorList.find(
     (color) => color && typeof color === "object"
   ) as Record<string, any>;
@@ -54,13 +69,71 @@
       (a, b) => stripPercentToNumber(a) - stripPercentToNumber(b)
     );
 
-  let stackPtg = 0;
+  function getStrokeList(percentList: number[]) {
+    let stackPtg = 0;
+    return percentList.map((ptg, index) => {
+      const color =
+        strokeColorList[index] || strokeColorList[strokeColorList.length - 1];
+      const stroke =
+        color && typeof color === "object" ? `url(#${gradientId})` : undefined;
+      const circleStyleForStack = getCircleStyle(
+        perimeter,
+        perimeterWithoutGap,
+        stackPtg,
+        ptg,
+        rotateDeg,
+        gapDegree,
+        gapPosition,
+        color,
+        strokeLinecap,
+        strokeWidth
+      );
+      stackPtg += ptg;
+      return {
+        stroke,
+        style: formatStyle(circleStyleForStack),
+        opacity: ptg === 0 ? 0 : 1,
+      };
+    });
+  }
 
-  const add = (percent: number) => {
-    const ptg = stackPtg;
-    stackPtg += percent;
-    return ptg;
-  };
+  function getStepStokeList(percentList: number[]) {
+    // only show the first percent when pass steps
+    const current = Math.round(stepCount * (percentList[0] / 100));
+    const stepPtg = 100 / stepCount;
+
+    let stackPtg = 0;
+    return new Array(stepCount).fill(null).map((_, index) => {
+      const color = index <= current - 1 ? strokeColorList[0] : trailColor;
+      const stroke =
+        color && typeof color === "object" ? `url(#${gradientId})` : undefined;
+      const circleStyleForStack = getCircleStyle(
+        perimeter,
+        perimeterWithoutGap,
+        stackPtg,
+        stepPtg,
+        rotateDeg,
+        gapDegree,
+        gapPosition,
+        color,
+        "buttom",
+        strokeWidth,
+        stepSpace
+      );
+
+      stackPtg +=
+        ((perimeterWithoutGap -
+          circleStyleForStack.strokeDashoffset +
+          stepSpace) *
+          100) /
+        perimeterWithoutGap;
+
+      return {
+        stroke,
+        style: formatStyle(circleStyleForStack),
+      };
+    });
+  }
 </script>
 
 <svg
@@ -84,37 +157,37 @@
   {/if}
 
   {#if stepCount}
-    {#each percentList as percent}{/each}
-  {:else}
-    <CirclePath
-      class={`${prefixCls}-circle-trail`}
-      {radius}
-      color={trailColor}
-      {strokeLinecap}
-      start={0}
-      end={100}
-      {gapDegree}
-      {rotateDeg}
-      {perimeter}
-      {perimeterWithoutGap}
-      strokeWidth={trailWidth || strokeWidth}
-    />
-    {#each percentList.reverse() as percent, index}
-      <CirclePath
+    {#each percentList as percent}
+      <circle
+        {...percent}
         class={`${prefixCls}-circle-path`}
-        {gradientId}
-        {radius}
-        color={strokeColorList[index] ||
-          strokeColorList[strokeColorList.length - 1]}
-        stroke={strokeColor}
-        {strokeLinecap}
-        start={add(percent)}
-        end={percent}
-        {gapDegree}
-        {rotateDeg}
-        {perimeter}
-        {perimeterWithoutGap}
-        {strokeWidth}
+        r={radius}
+        cx={0}
+        cy={0}
+        stroke-width={strokeWidth}
+        opacity={1}
+      />
+    {/each}
+  {:else}
+    <circle
+      class={`${prefixCls}-circle-trail`}
+      r={radius}
+      cx={0}
+      cy={0}
+      stroke={trailColor}
+      stroke-linecap={strokeLinecap}
+      stroke-width={trailWidth || strokeWidth}
+      style={circleStyle}
+    />
+    {#each percentList as percent}
+      <circle
+        {...percent}
+        class={`${prefixCls}-circle-path`}
+        r={radius}
+        cx={0}
+        cy={0}
+        stroke-linecap={strokeLinecap}
+        stroke-width={strokeWidth}
       />
     {/each}
   {/if}

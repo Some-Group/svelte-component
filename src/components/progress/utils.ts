@@ -31,7 +31,7 @@ export const getCircleStyle = (
           top: 180,
           left: 90,
           right: -90,
-        }[gapPosition || "bottom"];
+        }[gapPosition ?? "bottom"];
 
   let strokeDashoffset = ((100 - percent) / 100) * perimeterWithoutGap;
   // Fix percent accuracy when strokeLinecap is round
@@ -44,17 +44,14 @@ export const getCircleStyle = (
     }
   }
 
-  let style = "";
-  // stroke
-  if (typeof strokeColor === "string") {
-    style += `stroke: ${strokeColor};`;
-  }
-  style += `stroke-dasharray: ${perimeterWithoutGap}px ${perimeter};`;
-  style += `stroke-dashoffset: ${strokeDashoffset + stepSpace};`;
-  style += `transform: rotate(${rotateDeg + offsetDeg + positionDeg}deg);`;
-  style += `transform-origin: 0 0;`;
-  style += `transition: stroke-dashoffset .3s ease 0s, stroke-dasharray .3s ease 0s, stroke .3s, stroke-width .06s ease .3s, opacity .3s ease 0s;`;
-  style += `fill-opacity: 0;`;
-
-  return style;
+  return {
+    stroke: typeof strokeColor === "string" ? strokeColor : undefined,
+    strokeDasharray: `${perimeterWithoutGap}px ${perimeter}`,
+    strokeDashoffset: strokeDashoffset + stepSpace,
+    transform: `rotate(${rotateDeg + offsetDeg + positionDeg}deg)`,
+    transformOrigin: "0 0",
+    transition:
+      "stroke-dashoffset .3s ease 0s, stroke-dasharray .3s ease 0s, stroke .3s, stroke-width .06s ease .3s, opacity .3s ease 0s",
+    fillOpacity: 0,
+  };
 };
