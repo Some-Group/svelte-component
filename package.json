@@ -18,6 +18,10 @@
     }
   },
   "files": ["dist"],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
   "peerDependencies": {
     "svelte": "^3.54.0"
   },
