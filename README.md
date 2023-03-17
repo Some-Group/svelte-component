@@ -8,7 +8,7 @@ Todo....
 
 ## Component List
 
-- [ ] Align
+- [x] Align -> not good
 - [x] Checkbox
 - [ ] Cascader
 - [ ] Dialog
