@@ -43,10 +43,8 @@
   /** Popup node ref */
   let fragmentRef: any;
 
-  $: nodeRef =
-    fragmentRef && fragmentRef.children.length === 1
-      ? fragmentRef.children[0]
-      : null;
+  let nodeRef: HTMLElement | undefined;
+  $: nodeRef;
 
   const dispatch = createEventDispatcher<{
     align: any;
@@ -129,11 +127,13 @@
     cancelForceAlign();
   });
 
+  const ref = (node: HTMLElement) => {
+    nodeRef = node;
+  };
+
   // export interface RefAlign {
   //   forceAlign: () => void;
   // }
 </script>
 
-<align-container bind:this={fragmentRef}>
-  <slot />
-</align-container>
+<slot {ref} />
