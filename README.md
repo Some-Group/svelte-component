@@ -8,7 +8,7 @@ Todo....
 
 ## Component List
 
-- [x] Align -> not good
+- [x] Align
 - [x] Checkbox
 - [ ] Cascader
 - [ ] Dialog
@@ -21,7 +21,7 @@ Todo....
 - [ ] Pagination
 - [ ] Picker
 - [x] Progress
-- [ ] ResizeObserver
+- [] ResizeObserver
 - [ ] Select
 - [ ] Slider
 - [ ] Steps
