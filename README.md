@@ -21,7 +21,7 @@ Todo....
 - [ ] Pagination
 - [ ] Picker
 - [x] Progress
-- [] ResizeObserver
+- [x] ResizeObserver
 - [ ] Select
 - [ ] Slider
 - [ ] Steps
